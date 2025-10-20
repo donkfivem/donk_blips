@@ -1,26 +1,33 @@
+shared_script "@ReaperV4/bypass.lua"
+lua54 "yes" -- needed for Reaper
+
+shared_scripts { '@FiniAC/fini_events.lua' }
+
+
 fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
-author 'donk'
-description 'Blips Creator with Admin Management'
-version '2.0'
-
-shared_scripts {
-    '@ox_lib/init.lua',
-    'config.lua',
-}
 
 client_scripts {
-    'client.lua',
+	'client/main.lua',
+	'client/ui.lua'
 }
 
+shared_scripts {
+	'@ox_lib/init.lua',
+}
+
+	
 server_scripts {
-    '@oxmysql/lib/MySQL.lua',
-    'server.lua',
+	'@oxmysql/lib/MySQL.lua',
+	'server/main.lua',
+	'blips.lua',
 }
 
-dependencies {
-    'ox_lib',
-    'oxmysql'
+ui_page 'web/build/index.html'
+
+files {
+	'web/build/index.html',
+	'web/build/**/*',
 }
