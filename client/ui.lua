@@ -1,7 +1,5 @@
 local NuiHasLoaded = false
 
----Opens the blips management UI
----@param id number|nil Specific blip ID to open (optional)
 local function openUi(id)
     if not NuiHasLoaded then
         NuiHasLoaded = true
@@ -19,12 +17,10 @@ local function openUi(id)
     }))
 end
 
--- NUI Callbacks
 RegisterNUICallback('createBlip', function(data, cb)
     cb(1)
     SetNuiFocus(false, false)
 
-    -- Clean up empty groups table
     if data.groups and not next(data.groups) then
         data.groups = nil
     end
@@ -64,10 +60,8 @@ RegisterNUICallback('exit', function(_, cb)
     SetNuiFocus(false, false)
 end)
 
--- Network Events
 RegisterNetEvent('blips:view', function()
     openUi(nil)
 end)
 
--- Export for external scripts
 exports('openBlipsUI', openUi)

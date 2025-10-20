@@ -1,9 +1,6 @@
 local blips = {}
 local isLoaded = false
 
----Checks if a player has admin permissions
----@param source number Player server ID
----@return boolean hasPermission
 local function isPlayerAllowed(source)
     if Framework.name == 'qbcore' then
         local Player = Framework.object.Functions.GetPlayer(source)
@@ -14,14 +11,10 @@ local function isPlayerAllowed(source)
         if not xPlayer then return false end
         return xPlayer.getGroup() == 'admin' or xPlayer.getGroup() == 'superadmin'
     else
-        -- Fallback: Allow all if no framework (change this if needed)
         return true
     end
 end
 
----Encodes blip data to JSON for database storage
----@param blip table Blip data
----@return string jsonData
 local function encodeData(blip)
     return json.encode({
         coords = blip.coords,
@@ -44,11 +37,6 @@ local function encodeData(blip)
     })
 end
 
----Creates or updates a blip
----@param id number Blip ID
----@param blip table Blip data
----@param name string Blip name
----@return table blip
 local function createBlip(id, blip, name)
     blip.id = id
     blip.name = name
@@ -61,10 +49,6 @@ local function createBlip(id, blip, name)
     return blip
 end
 
----Sends a notification to a player
----@param source number Player server ID
----@param message string Notification message
----@param type string Notification type (success, error, info)
 local function sendNotification(source, message, type)
     if Framework.name == 'qbcore' then
         TriggerClientEvent('QBCore:Notify', source, message, type)
@@ -74,7 +58,6 @@ local function sendNotification(source, message, type)
             xPlayer.showNotification(message)
         end
     else
-        -- Use ox_lib notify as fallback
         TriggerClientEvent('ox_lib:notify', source, {
             title = 'Blips',
             description = message,
@@ -83,7 +66,6 @@ local function sendNotification(source, message, type)
     end
 end
 
--- Initialize database
 MySQL.ready(function()
     local success, result = pcall(MySQL.query.await, 'SELECT id, name, data FROM blips')
 
@@ -111,7 +93,6 @@ MySQL.ready(function()
     print('[donk_blips] Successfully loaded ' .. #result .. ' blips')
 end)
 
--- Network Events
 RegisterNetEvent('blips:getBlips', function()
     local source = source
 
@@ -142,7 +123,6 @@ RegisterNetEvent('blips:editBlip', function(id, data)
     end
 
     if id then
-        -- Update or delete existing blip
         if data then
             MySQL.update('UPDATE blips SET name = ?, data = ? WHERE id = ?', { data.name, encodeData(data), id })
             blips[id] = data
@@ -156,7 +136,6 @@ RegisterNetEvent('blips:editBlip', function(id, data)
             sendNotification(source, ('Blip (%s) has been deleted'):format(blipName), 'success')
         end
     else
-        -- Create new blip
         local insertId = MySQL.insert.await('INSERT INTO blips (name, data) VALUES (?, ?)', { data.name, encodeData(data) })
         local blip = createBlip(insertId, data, data.name)
 
@@ -165,7 +144,6 @@ RegisterNetEvent('blips:editBlip', function(id, data)
     end
 end)
 
--- Migration from old config-based blips (if exists)
 CreateThread(function()
     Wait(1000)
 
@@ -202,7 +180,6 @@ CreateThread(function()
     print('[donk_blips] Migration complete!')
 end)
 
--- Register admin command using ox_lib
 lib.addCommand('blipsmenu', {
     help = 'Open blips management menu',
     restricted = 'group.admin'

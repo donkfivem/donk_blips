@@ -1,31 +1,23 @@
 local blips = {}
 
----Get all blips
----@return table blips
 function GetAllBlips()
     return blips
 end
 
--- Export function to get blips
 exports('GetAllBlips', GetAllBlips)
 
----Creates or updates a blip on the map
----@param blip table Blip data
 local function createBlip(blip)
     blip.zone = GetLabelText(GetNameOfZone(blip.coords.x, blip.coords.y, blip.coords.z))
 
     if not blip.hideUi then
-        -- Remove existing blip if it exists
         if blips[blip.id] and blips[blip.id].blipObj then
             RemoveBlip(blips[blip.id].blipObj)
         end
 
-        -- Create new blip
         blips[blip.id] = blips[blip.id] or {}
         blips[blip.id].blipObj = AddBlipForCoord(blip.coords.x, blip.coords.y, blip.coords.z)
         local newBlip = blips[blip.id].blipObj
 
-        -- Configure blip appearance
         SetBlipSprite(newBlip, blip.Sprite)
         SetBlipScale(newBlip, blip.scale / 10)
         SetBlipColour(newBlip, blip.sColor)
@@ -34,25 +26,21 @@ local function createBlip(blip)
         ShowOutlineIndicatorOnBlip(newBlip, blip.outline)
         SetBlipAlpha(newBlip, blip.alpha)
 
-        -- Configure blip flashing
         if blip.bflash then
             SetBlipFlashes(newBlip, true)
             SetBlipFlashInterval(newBlip, tonumber(blip.ftimer))
         end
 
-        -- Configure blip display
         if blip.hideb then
             SetBlipDisplay(newBlip, 3)
         else
             SetBlipDisplay(newBlip, 2)
         end
 
-        -- Set blip name
         BeginTextCommandSetBlipName("STRING")
         AddTextComponentString(blip.name)
         EndTextCommandSetBlipName(newBlip)
     else
-        -- Hide blip if hideUi is enabled
         if blips[blip.id] and blips[blip.id].blipObj then
             RemoveBlip(blips[blip.id].blipObj)
             blips[blip.id].blipObj = nil
@@ -60,23 +48,19 @@ local function createBlip(blip)
     end
 end
 
--- Request blips when player spawns
 CreateThread(function()
     Wait(1000)
     TriggerServerEvent('blips:getBlips')
 end)
 
--- QBCore compatibility
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     TriggerServerEvent('blips:getBlips')
 end)
 
--- ESX compatibility
 RegisterNetEvent('esx:playerLoaded', function()
     TriggerServerEvent('blips:getBlips')
 end)
 
--- Receive all blips from server
 RegisterNetEvent('blips:setBlips', function(data)
     blips = data
 
@@ -84,7 +68,6 @@ RegisterNetEvent('blips:setBlips', function(data)
         createBlip(blip)
     end
 
-    -- Update menu cache (safe call)
     local success, err = pcall(function()
         exports['donk_blips']:UpdateBlipsCache(data)
     end)
@@ -93,7 +76,6 @@ RegisterNetEvent('blips:setBlips', function(data)
     end
 end)
 
--- Set a single blip
 RegisterNetEvent('blips:setBlip', function(id, source, data)
     if not blips then return end
 
@@ -108,7 +90,6 @@ RegisterNetEvent('blips:setBlip', function(id, source, data)
             }))
         end
 
-        -- Update menu cache (safe call)
         local success, err = pcall(function()
             exports['donk_blips']:UpdateBlipsCache(blips)
         end)
@@ -118,7 +99,6 @@ RegisterNetEvent('blips:setBlip', function(id, source, data)
     end
 end)
 
--- Edit or delete a blip
 RegisterNetEvent('blips:editBlip', function(id, data)
     if source == '' then return end
 
@@ -129,7 +109,6 @@ RegisterNetEvent('blips:editBlip', function(id, data)
     end
 
     if data == nil then
-        -- Delete blip
         if blip and blip.blipObj then
             RemoveBlip(blip.blipObj)
         end
@@ -140,7 +119,6 @@ RegisterNetEvent('blips:editBlip', function(id, data)
             data = id
         }))
 
-        -- Update menu cache (safe call)
         local success, err = pcall(function()
             exports['donk_blips']:UpdateBlipsCache(blips)
         end)
@@ -150,7 +128,6 @@ RegisterNetEvent('blips:editBlip', function(id, data)
         return
     end
 
-    -- Update blip
     blips[id] = data
     createBlip(data)
 
@@ -161,7 +138,6 @@ RegisterNetEvent('blips:editBlip', function(id, data)
         }))
     end
 
-    -- Update menu cache (safe call)
     local success, err = pcall(function()
         exports['donk_blips']:UpdateBlipsCache(blips)
     end)

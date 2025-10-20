@@ -1,7 +1,5 @@
 local blipsCache = {}
 
----Updates the local blips cache
----@param data table Blips data from server
 local function UpdateBlipsCache(data)
     blipsCache = data
     local count = 0
@@ -12,11 +10,8 @@ local function UpdateBlipsCache(data)
     print('[donk_blips] Cache updated with ' .. count .. ' blips')
 end
 
--- Export the update function
 exports('UpdateBlipsCache', UpdateBlipsCache)
 
----Get all blips as options for selection
----@return table options
 local function getAllBlipsOptions()
     local options = {}
 
@@ -37,9 +32,7 @@ local function getAllBlipsOptions()
     return options
 end
 
----Opens the main blips menu
 local function openBlipsMenu()
-    -- Ensure cache is updated before opening menu
     local currentBlips = exports['donk_blips']:GetAllBlips()
     if currentBlips then
         blipsCache = currentBlips
@@ -100,7 +93,6 @@ local function openBlipsMenu()
     lib.showContext('blips_main_menu')
 end
 
----Opens the place blip menu
 function openPlaceBlipMenu()
     local input = lib.inputDialog('Place New Blip', {
         {
@@ -226,7 +218,6 @@ function openPlaceBlipMenu()
     openBlipsMenu()
 end
 
----Opens the modify blip selection menu
 function openModifyBlipSelect()
     local options = getAllBlipsOptions()
 
@@ -259,8 +250,6 @@ function openModifyBlipSelect()
     openModifyBlipMenu(blipId)
 end
 
----Opens the modify menu for a specific blip
----@param blipId number The ID of the blip to modify
 function openModifyBlipMenu(blipId)
     local blip = blipsCache[blipId]
 
@@ -411,7 +400,6 @@ function openModifyBlipMenu(blipId)
     openBlipsMenu()
 end
 
----Opens the delete blip selection menu
 function openDeleteBlipSelect()
     local options = getAllBlipsOptions()
 
@@ -474,7 +462,6 @@ function openDeleteBlipSelect()
     openBlipsMenu()
 end
 
----Opens the list all blips menu
 function openListBlipsMenu()
     local options = {}
 
@@ -509,8 +496,6 @@ function openListBlipsMenu()
     lib.showContext('blips_list_menu')
 end
 
----Opens the details menu for a specific blip
----@param blipId number The ID of the blip
 function openBlipDetailsMenu(blipId)
     local blip = blipsCache[blipId]
 
@@ -608,7 +593,6 @@ function openBlipDetailsMenu(blipId)
     lib.showContext('blip_details_menu')
 end
 
----Opens the teleport blip selection menu
 function openTeleportBlipSelect()
     local options = getAllBlipsOptions()
 
@@ -662,10 +646,8 @@ function openTeleportBlipSelect()
     openBlipsMenu()
 end
 
--- Export the menu function
 exports('openBlipsMenu', openBlipsMenu)
 
--- Register the network event to open menu
 RegisterNetEvent('blips:openMenu', function()
     local count = 0
     for _ in pairs(blipsCache or {}) do
@@ -675,9 +657,7 @@ RegisterNetEvent('blips:openMenu', function()
     openBlipsMenu()
 end)
 
--- Initialize cache when player spawns
 CreateThread(function()
     Wait(2000)
-    -- Request blips data
     TriggerServerEvent('blips:getBlips')
 end)
