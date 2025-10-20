@@ -141,7 +141,7 @@ end)
 -- Register admin command
 lib.addCommand(Config.AdminCommand, {
     help = 'Open Blip Management Menu (Admin Only)',
-    restricted = false
+    restricted = 'group.admin'
 }, function(source, args, raw)
     if HasAdminPermission(source) then
         TriggerClientEvent('donk_blips:client:openAdminMenu', source)
