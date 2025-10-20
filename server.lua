@@ -74,7 +74,9 @@ end
 
 -- Get all blips from database
 lib.callback.register('donk_blips:server:getBlips', function(source)
+    print("^5[DONK BLIPS SERVER] Getting blips from database for source: " .. source)
     local result = MySQL.query.await('SELECT * FROM donk_blips')
+    print("^2[DONK BLIPS SERVER] Found " .. (result and #result or 0) .. " blips in database")
     return result or {}
 end)
 
@@ -82,17 +84,27 @@ end)
 RegisterNetEvent('donk_blips:server:addBlip', function(data)
     local src = source
 
+    print("^5[DONK BLIPS SERVER] addBlip event received from source: " .. src)
+    print("^3[DONK BLIPS SERVER] Blip data: " .. json.encode(data))
+
     -- Check if player has admin permission
     if not HasAdminPermission(src) then
+        print("^1[DONK BLIPS SERVER] Player " .. src .. " does NOT have admin permission")
         SendNotify(src, 'You do not have permission to use this command', 'error')
         return
     end
 
+    print("^2[DONK BLIPS SERVER] Player " .. src .. " has admin permission")
+
     local identifier = GetPlayerIdentifier(src)
     if not identifier then
+        print("^1[DONK BLIPS SERVER] Failed to get identifier for player " .. src)
         SendNotify(src, 'Failed to get player identifier', 'error')
         return
     end
+
+    print("^2[DONK BLIPS SERVER] Player identifier: " .. identifier)
+    print("^5[DONK BLIPS SERVER] Inserting blip into database...")
 
     local insertId = MySQL.insert.await('INSERT INTO donk_blips (name, x, y, z, sprite, color, scale, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', {
         data.name,
@@ -106,9 +118,12 @@ RegisterNetEvent('donk_blips:server:addBlip', function(data)
     })
 
     if insertId then
+        print("^2[DONK BLIPS SERVER] Blip inserted successfully! Insert ID: " .. insertId)
         SendNotify(src, 'Blip created successfully!', 'success')
+        print("^5[DONK BLIPS SERVER] Triggering refresh for all clients...")
         TriggerClientEvent('donk_blips:client:refreshBlips', -1) -- Refresh for all players
     else
+        print("^1[DONK BLIPS SERVER] Failed to insert blip into database!")
         SendNotify(src, 'Failed to create blip', 'error')
     end
 end)
