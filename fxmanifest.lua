@@ -1,14 +1,14 @@
 fx_version 'cerulean'
 game 'gta5'
 
-
-author 'blastersuraj'
-description 'Blip Creator Free For QBCore and ESX'
+author 'donk'
+description 'Blips Creator'
 version '1.0'
-discord 'https://discord.gg/WbDp5GQ45t'
-scriptname 'ef-blips'
 
+shared_scripts {
+    'config.lua',
+}
 
-
-shared_script 'config.lua'
-client_script 'efblips.lua'
+client_scripts {
+    'client.lua',
+}
